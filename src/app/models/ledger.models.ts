@@ -59,6 +59,8 @@ export interface BusinessProfile {
   address: string;
   upiId: string;
   businessCategory: string;
+  customQrUrl?: string;
+  language?: string;
 }
 
 export interface RecentTransactionItem extends Transaction {

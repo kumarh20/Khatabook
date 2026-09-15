@@ -7,24 +7,24 @@ import { Ledger } from '../services/ledger';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule],
   template: `
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-      <div class="bg-white w-full max-w-2xl rounded-3xl border border-slate-200/80 p-4 sm:p-6 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+    <div class="ios-sheet-backdrop">
+      <div class="ios-sheet-card max-w-2xl p-4 sm:p-6 overflow-hidden max-h-[92vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
         <!-- Modal Top Bar (Hidden on print) -->
-        <div class="no-print pb-3.5 mb-2 border-b border-slate-100 flex items-center justify-between shrink-0">
+        <div class="no-print pb-3.5 mb-2 border-b border-black/[0.06] flex items-center justify-between shrink-0">
           <div class="flex items-center gap-2.5">
-            <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
+            <div class="w-10 h-10 rounded-[14px] bg-[#007aff]/10 text-[#007aff] flex items-center justify-center">
               <mat-icon class="text-lg! w-5! h-5!">receipt_long</mat-icon>
             </div>
             <div>
-              <h3 class="font-black text-sm sm:text-base text-slate-900 tracking-tight leading-tight">Grahak Hisab Statement (Bahi Khata)</h3>
-              <p class="text-[11px] text-slate-500 font-medium">Print aur digital hisab copy</p>
+              <h3 class="font-bold text-sm sm:text-base text-[#1c1c1e] tracking-tight leading-tight">Grahak Hisab Statement (Bahi Khata)</h3>
+              <p class="text-[11px] text-[#8e8e93] font-medium">Print aur digital hisab copy</p>
             </div>
           </div>
           <div class="flex items-center gap-2">
             <button
               type="button"
               (click)="printStatement()"
-              class="px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+              class="px-4 py-2 rounded-[14px] bg-[#34c759] hover:bg-[#2eb14e] text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
               id="print-statement-btn"
             >
               <mat-icon class="text-xs! w-3.5! h-3.5!">print</mat-icon>
@@ -33,7 +33,7 @@ import { Ledger } from '../services/ledger';
             <button
               type="button"
               (click)="closeModal.emit()"
-              class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center cursor-pointer transition-colors"
+              class="w-8 h-8 rounded-full bg-black/[0.05] hover:bg-black/[0.1] text-[#8e8e93] hover:text-[#1c1c1e] flex items-center justify-center cursor-pointer transition-colors active:scale-95"
               id="close-statement-btn"
             >
               <mat-icon class="text-xs! w-3.5! h-3.5!">close</mat-icon>
@@ -42,7 +42,7 @@ import { Ledger } from '../services/ledger';
         </div>
 
         <!-- Printable Statement Area -->
-        <div id="printable-statement" class="p-6 sm:p-8 overflow-y-auto bg-white text-slate-900 text-xs">
+        <div id="printable-statement" class="p-6 sm:p-8 overflow-y-auto bg-white text-[#1c1c1e] text-xs">
           
           <!-- Statement Header -->
           <div class="border-b-2 border-slate-900 pb-4 mb-6 flex items-start justify-between">
@@ -62,28 +62,28 @@ import { Ledger } from '../services/ledger';
 
           <!-- Customer Info Box -->
           @if (customer(); as cust) {
-            <div class="bg-slate-50 rounded-xl p-4 mb-6 border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+            <div class="bg-[#f2f2f7] rounded-[16px] p-4 mb-6 border border-black/[0.06] flex flex-wrap items-center justify-between gap-4">
               <div>
-                <span class="text-2xs uppercase text-slate-400 font-bold block">Grahak (Customer)</span>
-                <span class="text-base font-bold text-slate-900 block">{{ cust.name }}</span>
+                <span class="text-2xs uppercase text-[#8e8e93] font-bold block">Grahak (Customer)</span>
+                <span class="text-base font-bold text-[#1c1c1e] block">{{ cust.name }}</span>
                 @if (cust.phone) {
                   <span class="text-slate-600">Mobile: +91 {{ cust.phone }}</span>
                 }
               </div>
               @if (cust.address) {
                 <div>
-                  <span class="text-2xs uppercase text-slate-400 font-bold block">Pata (Address)</span>
+                  <span class="text-2xs uppercase text-[#8e8e93] font-bold block">Pata (Address)</span>
                   <span class="text-slate-700">{{ cust.address }}</span>
                 </div>
               }
               <div class="text-right">
-                <span class="text-2xs uppercase font-bold block" [class.text-rose-600]="summary()?.status === 'due'" [class.text-emerald-600]="summary()?.status === 'advance'">
+                <span class="text-2xs uppercase font-bold block" [class.text-[#ff3b30]]="summary()?.status === 'due'" [class.text-[#34c759]]="summary()?.status === 'advance'">
                   Net Balance Status
                 </span>
                 <span
                   class="text-xl font-black"
-                  [class.text-rose-600]="summary()?.status === 'due'"
-                  [class.text-emerald-600]="summary()?.status === 'advance'"
+                  [class.text-[#ff3b30]]="summary()?.status === 'due'"
+                  [class.text-[#34c759]]="summary()?.status === 'advance'"
                 >
                   ₹{{ formatAmount(summary()?.netBalance || 0) }}
                   <span class="text-xs font-semibold">
@@ -110,16 +110,16 @@ import { Ledger } from '../services/ledger';
                     <td class="p-2.5 border border-slate-200 whitespace-nowrap text-slate-600">
                       {{ formatTxDate(tx.date) }}
                     </td>
-                    <td class="p-2.5 border border-slate-200 text-slate-800">
+                    <td class="p-2.5 border border-slate-200 text-[#1c1c1e]">
                       {{ tx.note || '-' }}
                     </td>
-                    <td class="p-2.5 border border-slate-200 text-right font-semibold text-rose-600">
+                    <td class="p-2.5 border border-slate-200 text-right font-semibold text-[#ff3b30]">
                       {{ tx.type === 'gave' ? '₹' + tx.amount.toLocaleString('en-IN') : '-' }}
                     </td>
-                    <td class="p-2.5 border border-slate-200 text-right font-semibold text-emerald-600">
+                    <td class="p-2.5 border border-slate-200 text-right font-semibold text-[#34c759]">
                       {{ tx.type === 'received' ? '₹' + tx.amount.toLocaleString('en-IN') : '-' }}
                     </td>
-                    <td class="p-2.5 border border-slate-200 text-right font-bold text-slate-900">
+                    <td class="p-2.5 border border-slate-200 text-right font-bold text-[#1c1c1e]">
                       ₹{{ formatAmount(tx.runningBalance) }}
                     </td>
                   </tr>
@@ -130,13 +130,13 @@ import { Ledger } from '../services/ledger';
                   <td colspan="2" class="p-2.5 border border-slate-200 text-right uppercase text-slate-700">
                     Total
                   </td>
-                  <td class="p-2.5 border border-slate-200 text-right text-rose-600 font-extrabold">
+                  <td class="p-2.5 border border-slate-200 text-right text-[#ff3b30] font-bold">
                     ₹{{ (summary()?.totalGave || 0).toLocaleString('en-IN') }}
                   </td>
-                  <td class="p-2.5 border border-slate-200 text-right text-emerald-600 font-extrabold">
+                  <td class="p-2.5 border border-slate-200 text-right text-[#34c759] font-bold">
                     ₹{{ (summary()?.totalReceived || 0).toLocaleString('en-IN') }}
                   </td>
-                  <td class="p-2.5 border border-slate-200 text-right font-black text-slate-900">
+                  <td class="p-2.5 border border-slate-200 text-right font-black text-[#1c1c1e]">
                     ₹{{ formatAmount(summary()?.netBalance || 0) }}
                   </td>
                 </tr>

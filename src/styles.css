@@ -3,193 +3,275 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --color-app-bg: #f0f5fa;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Plus Jakarta Sans", "SF Pro Text", system-ui, sans-serif;
+  --color-canvas-bg: #f0f4f9;
+  --color-card-bg: #ffffff;
+  --color-accent-blue: #007aff;
+  --color-accent-mint: #10b981;
+  --color-accent-purple: #8b5cf6;
+  --color-accent-orange: #f97316;
 }
 
 html, body {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Plus Jakarta Sans", "SF Pro Text", system-ui, sans-serif;
   min-height: 100%;
-  background-color: #f0f5fa;
-  color: #0f172a;
+  background-color: #f0f4f9;
+  color: #1e293b;
   -webkit-tap-highlight-color: transparent;
+  letter-spacing: -0.012em;
 }
 
 /* ===================================================
-   MODERN PASTEL MOBILE APP THEME (MATCHING SCREENSHOT)
+   PASTEL MINIMAL DESIGN SYSTEM (EXACT MATCH TO SCREENSHOT)
    =================================================== */
 
-/* Crisp elevated card with soft subtle diffusion */
-.app-card {
+/* Clean White Floating Cards with Subtle Clean Border Radius */
+.ios-card, .app-card {
   background: #ffffff;
-  border-radius: 24px;
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.app-card-interactive:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
-  border-color: rgba(203, 213, 225, 0.9);
-}
-
-.app-card-interactive:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04);
-}
-
-/* Soft Pastel Gradient Hero Cards (From Screenshot) */
-.hero-gradient-blue {
-  background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 50%, #ede9fe 100%);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.12), 0 4px 10px -2px rgba(99, 102, 241, 0.08);
-}
-
-.hero-gradient-mint {
-  background: linear-gradient(135deg, #d1fae5 0%, #ccfbf1 50%, #e0f2fe 100%);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.12), 0 4px 10px -2px rgba(20, 184, 166, 0.08);
-}
-
-.hero-gradient-purple {
-  background: linear-gradient(135deg, #ede9fe 0%, #f3e8ff 50%, #fae8ff 100%);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.12), 0 4px 10px -2px rgba(168, 85, 247, 0.08);
-}
-
-.hero-gradient-coral {
-  background: linear-gradient(135deg, #ffe4e6 0%, #fee2e2 50%, #fef3c7 100%);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 10px 25px -5px rgba(244, 63, 94, 0.12), 0 4px 10px -2px rgba(239, 68, 68, 0.08);
-}
-
-/* Quick Action / Squircle Icon Card */
-.app-action-card {
-  background: #ffffff;
-  border-radius: 20px;
-  border: 1px solid rgba(241, 245, 249, 1);
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
-  transition: all 0.2s ease;
-}
-
-.app-action-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
-  border-color: rgba(226, 232, 240, 1);
-}
-
-/* Crisp Clean Button */
-.app-btn-primary {
-  background: #0f172a;
-  color: #ffffff;
   border-radius: 16px;
-  font-weight: 700;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
-  transition: all 0.2s ease;
+  border: 1px solid rgba(226, 235, 246, 0.95);
+  box-shadow: 0 10px 30px -4px rgba(110, 135, 175, 0.07), 0 2px 8px rgba(110, 135, 175, 0.03);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.app-btn-primary:hover {
-  background: #1e293b;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.2);
-}
-
-.app-btn-primary:active {
-  transform: translateY(0);
-}
-
-/* Secondary Button */
-.app-btn-secondary {
+.ios-card-interactive, .app-card-interactive {
   background: #ffffff;
-  color: #334155;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  font-weight: 700;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-  transition: all 0.2s ease;
-}
-
-.app-btn-secondary:hover {
-  background: #f8fafc;
-  color: #0f172a;
-  border-color: #cbd5e1;
-}
-
-/* Icon Button */
-.app-icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
   border-radius: 14px;
-  color: #475569;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-  transition: all 0.2s ease;
-  cursor: pointer;
+  border: 1px solid rgba(226, 235, 246, 0.95);
+  box-shadow: 0 6px 20px -3px rgba(110, 135, 175, 0.06), 0 2px 6px rgba(110, 135, 175, 0.02);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.app-icon-btn:hover {
-  background: #f8fafc;
-  color: #0f172a;
-  border-color: #cbd5e1;
-  transform: translateY(-1px);
+.ios-card-interactive:hover, .app-card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px -4px rgba(110, 135, 175, 0.12), 0 4px 12px rgba(110, 135, 175, 0.04);
+  border-color: rgba(200, 218, 242, 0.95);
 }
 
-.app-icon-btn:active {
-  transform: translateY(0);
+.ios-card-interactive:active, .app-card-interactive:active {
+  transform: scale(0.982);
+  box-shadow: 0 2px 6px rgba(110, 135, 175, 0.05);
 }
 
-/* Pill Badges */
-.badge-pill-mint {
+/* ===================================================
+   SCREENSHOT PASTEL SQUIRCLE ICON BOXES (TOP ROW CARDS)
+   =================================================== */
+
+/* Calendar (Sky Blue) */
+.icon-box-blue {
+  background-color: #e8f2fc;
+  color: #0284c7;
+  border-radius: 12px;
+}
+
+/* Wallet (Emerald Mint) */
+.icon-box-green {
+  background-color: #eafaf1;
+  color: #10b981;
+  border-radius: 12px;
+}
+
+/* Delivery / Warning (Peach Orange) */
+.icon-box-orange {
+  background-color: #fef4ea;
+  color: #f97316;
+  border-radius: 12px;
+}
+
+/* Plant / Health (Mint) */
+.icon-box-mint {
   background-color: #ecfdf5;
   color: #059669;
-  border: 1px solid #d1fae5;
+  border-radius: 12px;
+}
+
+/* Kitchen / Alert (Rose Pink) */
+.icon-box-pink {
+  background-color: #fcebf2;
+  color: #ec4899;
+  border-radius: 12px;
+}
+
+/* Focus / Smart (Lavender Purple) */
+.icon-box-purple {
+  background-color: #f5eeff;
+  color: #8b5cf6;
+  border-radius: 12px;
+}
+
+/* ===================================================
+   HERO GRADIENT CARDS (EXACT MATCH TO 3 SCREENS)
+   =================================================== */
+
+/* Screen 1: Soft Sky Blue Hero Card ("Today focus" / "5 planned tasks") */
+.hero-gradient-blue, .ios-hero-pastel-blue {
+  background: linear-gradient(135deg, #74b9ff 0%, #99cbff 45%, #c2e9fb 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 14px 34px -4px rgba(116, 185, 255, 0.32), 0 4px 12px -2px rgba(116, 185, 255, 0.15);
+  color: #ffffff;
+}
+
+/* Screen 2: Soft Mint Green Hero Card ("Calendar" / "June 2026") */
+.hero-gradient-mint, .ios-hero-pastel-mint, .hero-gradient-mint-ss {
+  background: linear-gradient(135deg, #86efac 0%, #a7f3d0 50%, #bbf7d0 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 14px 34px -4px rgba(134, 239, 172, 0.32), 0 4px 12px -2px rgba(134, 239, 172, 0.15);
+  color: #064e3b;
+}
+
+/* Screen 3: Soft Lavender / Purple Hero Card ("My tasks" / "18 of 24 tasks done") */
+.hero-gradient-purple, .ios-hero-pastel-purple {
+  background: linear-gradient(135deg, #d8b4fe 0%, #e9d5ff 50%, #fae8ff 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 14px 34px -4px rgba(216, 180, 254, 0.32), 0 4px 12px -2px rgba(216, 180, 254, 0.15);
+  color: #4c1d95;
+}
+
+/* Apple Wallet / Titanium Hero Card (Enhanced with softer glow) */
+.ios-hero-wallet {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 14px 32px -4px rgba(37, 99, 235, 0.28), 0 4px 12px -2px rgba(37, 99, 235, 0.12);
+  color: #ffffff;
+}
+
+/* Quick Action Squircle App Cards */
+.ios-app-icon {
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(90, 115, 160, 0.08);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+
+.ios-app-icon:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 20px rgba(90, 115, 160, 0.12);
+}
+
+.ios-app-icon:active {
+  transform: scale(0.95);
+}
+
+/* Segmented Control Track */
+.ios-segmented-control {
+  background-color: #e9eef5;
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.ios-segmented-btn {
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: -0.01em;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ios-segmented-btn-active {
+  background: #ffffff;
+  color: #1e293b;
+  box-shadow: 0 2px 8px rgba(90, 115, 160, 0.12), 0 1px 2px rgba(90, 115, 160, 0.06);
+}
+
+/* Soft Pastel Time / Category Pill Badges (Matching Screen 1 & 2) */
+.badge-pill-mint {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid rgba(134, 239, 172, 0.4);
 }
 
 .badge-pill-rose {
-  background-color: #fff1f2;
-  color: #e11d48;
-  border: 1px solid #ffe4e6;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid rgba(254, 202, 202, 0.5);
 }
 
 .badge-pill-blue {
-  background-color: #eff6ff;
-  color: #2563eb;
-  border: 1px solid #dbeafe;
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid rgba(186, 230, 253, 0.5);
 }
 
 .badge-pill-purple {
-  background-color: #faf5ff;
-  color: #7c3aed;
-  border: 1px solid #ede9fe;
+  background-color: #f3e8ff;
+  color: #7e22ce;
+  border: 1px solid rgba(233, 213, 255, 0.5);
 }
 
-.badge-pill-amber {
-  background-color: #fffbeb;
-  color: #d97706;
-  border: 1px solid #fef3c7;
+.badge-pill-orange {
+  background-color: #ffedd5;
+  color: #c2410c;
+  border: 1px solid rgba(254, 215, 170, 0.5);
 }
 
-/* Modern Input Style */
-.app-input {
+/* Buttons */
+.ios-btn-primary, .app-btn-primary {
+  background: #007aff;
+  color: #ffffff;
+  border-radius: 12px;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(0, 122, 255, 0.25);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ios-btn-primary:hover, .app-btn-primary:hover {
+  background: #0066d6;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 122, 255, 0.32);
+}
+
+.ios-btn-primary:active, .app-btn-primary:active {
+  transform: scale(0.97);
+}
+
+.ios-btn-secondary, .app-btn-secondary {
+  background: #ffffff;
+  color: #1e293b;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(90, 115, 160, 0.04);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ios-btn-secondary:hover, .app-btn-secondary:hover {
+  background: #f8fafc;
+  border-color: rgba(203, 213, 225, 0.9);
+}
+
+.ios-btn-secondary:active, .app-btn-secondary:active {
+  transform: scale(0.97);
+}
+
+/* Sheet & Modal Card Backdrops */
+.ios-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.ios-sheet-card {
   background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
-  transition: all 0.2s ease;
+  width: 100%;
+  border-radius: 18px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 20px 50px -6px rgba(90, 115, 160, 0.18), 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.app-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
-}
-
-/* Custom scrollbar for clean ledger view */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -197,12 +279,12 @@ html, body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: rgba(148, 163, 184, 0.3);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: rgba(148, 163, 184, 0.5);
 }
 
 /* Print styles for customer statement */
@@ -226,4 +308,5 @@ html, body {
     display: none !important;
   }
 }
+
 

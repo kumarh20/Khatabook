@@ -12,6 +12,7 @@ import {
   RecentTransactionItem
 } from '../models/ledger.models';
 import { getCookie, setCookie, deleteCookie } from '../utils/cookie.utils';
+import { I18nService, LanguageCode } from './i18n';
 
 export function generateUuid(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -38,7 +39,8 @@ const COOKIE_KEYS = {
   PHONE: 'okcredit_phone',
   ADDRESS: 'okcredit_address',
   UPI_ID: 'okcredit_upi_id',
-  CATEGORY: 'okcredit_category'
+  CATEGORY: 'okcredit_category',
+  CUSTOM_QR: 'okcredit_custom_qr'
 };
 
 interface SheetApiResponse {
@@ -49,6 +51,7 @@ interface SheetApiResponse {
   error?: string;
   customers?: Customer[];
   transactions?: Transaction[];
+  settings?: Partial<BusinessProfile>;
 }
 
 @Injectable({
@@ -57,6 +60,7 @@ interface SheetApiResponse {
 export class Ledger {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
+  private readonly i18n = inject(I18nService);
 
   // Core reactive in-memory signals (zero disk latency, ultra-fast UI)
   readonly businessName = signal<string>('Shree Ganesh Traders');
@@ -65,6 +69,7 @@ export class Ledger {
   readonly address = signal<string>('Shop No. 12, Main Bazar');
   readonly upiId = signal<string>('ganeshtraders@upi');
   readonly businessCategory = signal<string>('Kirana & General Store');
+  readonly customQrUrl = signal<string>('');
 
   readonly customers = signal<Customer[]>([]);
   readonly transactions = signal<Transaction[]>([]);
@@ -112,6 +117,7 @@ export class Ledger {
     const cookieAddress = getCookie(COOKIE_KEYS.ADDRESS);
     const cookieUpi = getCookie(COOKIE_KEYS.UPI_ID);
     const cookieCat = getCookie(COOKIE_KEYS.CATEGORY);
+    const cookieCustomQr = getCookie(COOKIE_KEYS.CUSTOM_QR);
 
     this.businessName.set(cookieShop);
     if (cookieOwner) this.ownerName.set(cookieOwner);
@@ -119,6 +125,7 @@ export class Ledger {
     if (cookieAddress) this.address.set(cookieAddress);
     if (cookieUpi) this.upiId.set(cookieUpi);
     if (cookieCat) this.businessCategory.set(cookieCat);
+    if (cookieCustomQr) this.customQrUrl.set(cookieCustomQr);
 
     if (cookieSheetUrl) {
       this.sheetConfig.set({
@@ -365,6 +372,15 @@ export class Ledger {
       this.businessCategory.set(profile.businessCategory.trim());
       setCookie(COOKIE_KEYS.CATEGORY, profile.businessCategory.trim(), 365);
     }
+    if (profile.customQrUrl !== undefined) {
+      this.customQrUrl.set(profile.customQrUrl);
+      if (profile.customQrUrl) {
+        setCookie(COOKIE_KEYS.CUSTOM_QR, profile.customQrUrl, 365);
+      } else {
+        deleteCookie(COOKIE_KEYS.CUSTOM_QR);
+      }
+    }
+    this.triggerBackgroundSync();
     this.showToast('Vyapar profile details update ho gayi hain', 'success');
   }
 
@@ -412,7 +428,7 @@ export class Ledger {
     if (!this.isBrowser) return;
 
     const data = {
-      version: '2.4',
+      version: '3.0',
       exportedAt: new Date().toISOString(),
       businessName: this.businessName(),
       ownerName: this.ownerName(),
@@ -420,6 +436,7 @@ export class Ledger {
       address: this.address(),
       upiId: this.upiId(),
       businessCategory: this.businessCategory(),
+      customQrUrl: this.customQrUrl(),
       customers: this.customers(),
       transactions: this.transactions()
     };
@@ -469,6 +486,14 @@ export class Ledger {
           this.businessCategory.set(parsed.businessCategory);
           setCookie(COOKIE_KEYS.CATEGORY, parsed.businessCategory, 365);
         }
+        if (parsed.customQrUrl !== undefined) {
+          this.customQrUrl.set(parsed.customQrUrl);
+          if (parsed.customQrUrl) {
+            setCookie(COOKIE_KEYS.CUSTOM_QR, parsed.customQrUrl, 365);
+          } else {
+            deleteCookie(COOKIE_KEYS.CUSTOM_QR);
+          }
+        }
         this.triggerBackgroundSync();
         this.showToast('Backup successfully restore ho gaya!', 'success');
         return true;
@@ -487,6 +512,7 @@ export class Ledger {
     if (!trimmed) return;
     this.businessName.set(trimmed);
     setCookie(COOKIE_KEYS.BUSINESS_NAME, trimmed, 365);
+    this.triggerBackgroundSync();
     this.showToast('Shop/Business name updated', 'success');
   }
 
@@ -727,10 +753,9 @@ export class Ledger {
     }
   }
 
-  private triggerBackgroundSync(): void {
+  triggerBackgroundSync(): void {
     const config = this.sheetConfig();
     if (!config.scriptUrl) {
-      this.showToast('Google Sheet connect nahi hai. Bahi-khata direct sheet me sync karne ke liye Sheet link karein.', 'info');
       return;
     }
     if (this.syncDebounceTimer) {
@@ -753,10 +778,21 @@ export class Ledger {
     this.sheetConfig.update((c) => ({ ...c, syncStatus: 'syncing', errorMessage: undefined }));
 
     try {
-      // Send current in-memory state directly to Google Sheet
+      // Send current in-memory state directly to Google Sheet including Settings
+      const currentLang = this.i18n.currentLanguage();
       const payload = {
         customers: this.customers(),
-        transactions: this.transactions()
+        transactions: this.transactions(),
+        settings: {
+          businessName: this.businessName(),
+          ownerName: this.ownerName(),
+          phone: this.phone(),
+          address: this.address(),
+          businessCategory: this.businessCategory(),
+          upiId: this.upiId(),
+          customQrUrl: this.customQrUrl(),
+          language: currentLang
+        }
       };
 
       let resData: SheetApiResponse | null = null;
@@ -903,6 +939,44 @@ export class Ledger {
         // Direct in-memory signals update
         this.customers.set(sheetCustomers);
         this.transactions.set(sheetTransactions);
+
+        // Restore store profile & user settings from Settings tab if present
+        if (resData.settings) {
+          const s = resData.settings;
+          if (s.businessName && s.businessName.trim()) {
+            this.businessName.set(s.businessName.trim());
+            setCookie(COOKIE_KEYS.BUSINESS_NAME, s.businessName.trim(), 365);
+          }
+          if (s.ownerName && s.ownerName.trim()) {
+            this.ownerName.set(s.ownerName.trim());
+            setCookie(COOKIE_KEYS.OWNER_NAME, s.ownerName.trim(), 365);
+          }
+          if (s.phone && s.phone.trim()) {
+            this.phone.set(s.phone.trim());
+            setCookie(COOKIE_KEYS.PHONE, s.phone.trim(), 365);
+          }
+          if (s.address !== undefined) {
+            this.address.set(s.address.trim());
+            setCookie(COOKIE_KEYS.ADDRESS, s.address.trim(), 365);
+          }
+          if (s.businessCategory && s.businessCategory.trim()) {
+            this.businessCategory.set(s.businessCategory.trim());
+            setCookie(COOKIE_KEYS.CATEGORY, s.businessCategory.trim(), 365);
+          }
+          if (s.upiId && s.upiId.trim()) {
+            this.upiId.set(s.upiId.trim());
+            setCookie(COOKIE_KEYS.UPI_ID, s.upiId.trim(), 365);
+          }
+          if (s.customQrUrl !== undefined) {
+            this.customQrUrl.set(s.customQrUrl);
+            if (s.customQrUrl) {
+              setCookie(COOKIE_KEYS.CUSTOM_QR, s.customQrUrl, 365);
+            }
+          }
+          if (s.language && (s.language === 'hi' || s.language === 'en')) {
+            this.i18n.setLanguage(s.language as LanguageCode);
+          }
+        }
 
         const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         setCookie(COOKIE_KEYS.LAST_SYNCED, nowStr, 365);

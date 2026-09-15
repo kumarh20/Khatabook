@@ -2,196 +2,185 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input, ou
 import { MatIconModule } from '@angular/material/icon';
 import { Ledger } from '../services/ledger';
 import { CustomerSummary } from '../models/ledger.models';
+import { CalendarPickerModal } from './calendar-picker-modal';
+import { I18nService } from '../services/i18n';
 
 @Component({
   selector: 'app-customer-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIconModule],
+  imports: [MatIconModule, CalendarPickerModal],
   template: `
-    <div class="space-y-4">
+    <div class="space-y-3 sm:space-y-4 animate-in fade-in duration-200">
       
-      <!-- Section Header with Search & Date Filter (Matching Screenshot 1 & 2 layout) -->
+      <!-- Section Header with Search & Date Filter -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Grahak Bahi Khata</h2>
-          <p class="text-xs text-slate-500 font-medium">Len-den ki puri list aur hisab kitab</p>
+          <h2 class="text-lg sm:text-xl font-bold text-[#1c1c1e] tracking-tight">{{ i18n.t().customerListHeading }}</h2>
+          <p class="text-xs text-[#8e8e93] font-medium">{{ i18n.t().customerListSub }}</p>
         </div>
 
-        <!-- Search & Date Filter Controls in Clean Pills -->
+        <!-- Search & Date Filter Controls in Clean iOS Controls -->
         <div class="flex items-center gap-2 w-full sm:w-auto">
           <!-- Search Input -->
           <div class="relative flex-1 sm:w-64">
-            <mat-icon class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base! w-4! h-4!">search</mat-icon>
+            <mat-icon class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8e8e93] text-base! w-4! h-4!">search</mat-icon>
             <input
               type="text"
               [value]="searchTerm()"
               (input)="onSearchInput($event)"
-              placeholder="Naam ya phone khojein..."
-              class="w-full pl-9 pr-8 py-2 text-xs font-medium text-slate-900 placeholder-slate-400 bg-white border border-slate-200/80 rounded-full shadow-2xs outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              [placeholder]="i18n.t().searchPlaceholder"
+              class="w-full pl-9 pr-8 py-2 text-xs font-semibold text-[#1c1c1e] placeholder-[#8e8e93] bg-white border border-slate-200/80 shadow-2xs rounded-xl outline-hidden focus:bg-white focus:ring-2 focus:ring-[#007aff]/30 transition-all"
               id="search-customer-input"
             />
             @if (searchTerm()) {
               <button
                 type="button"
                 (click)="searchTerm.set('')"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-slate-300 text-slate-600 flex items-center justify-center cursor-pointer"
                 title="Clear search"
                 id="clear-search-btn"
               >
-                <mat-icon class="text-xs! w-3.5! h-3.5!">close</mat-icon>
+                <mat-icon class="text-[10px]! w-3! h-3!">close</mat-icon>
               </button>
             }
           </div>
 
-          <!-- Small Date Filter Button / Input -->
+          <!-- Calendar Date Picker Trigger Button -->
           <div class="relative shrink-0">
-            @if (!isDateFilterOpen()) {
-              <button
-                type="button"
-                (click)="isDateFilterOpen.set(true)"
-                class="h-9 px-3 rounded-full border text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all shadow-2xs"
-                [class.bg-blue-50]="selectedDate()"
-                [class.border-blue-300]="selectedDate()"
-                [class.text-blue-700]="selectedDate()"
-                [class.bg-white]="!selectedDate()"
-                [class.border-slate-200/80]="!selectedDate()"
-                [class.text-slate-600]="!selectedDate()"
-                [class.hover:bg-slate-50]="!selectedDate()"
-                title="Tarikh se filter karein"
-                id="open-date-filter-btn"
-              >
-                <mat-icon class="text-sm! w-4! h-4!">calendar_today</mat-icon>
-                @if (selectedDate()) {
-                  <span class="text-[11px]">{{ formatDisplayDate(selectedDate()) }}</span>
-                } @else {
-                  <span class="hidden sm:inline text-[11px]">Tarikh</span>
-                }
-              </button>
-            } @else {
-              <!-- Small Inline Date Field -->
-              <div class="flex items-center gap-1.5 bg-white border border-blue-400 rounded-full pl-3 pr-2 py-1 shadow-xs animate-in fade-in duration-150">
-                <mat-icon class="text-xs! w-3.5! h-3.5! text-blue-600">event</mat-icon>
-                <input
-                  type="date"
-                  [value]="selectedDate()"
-                  (change)="onDateChange($event)"
-                  class="text-xs font-bold text-slate-800 bg-transparent outline-hidden cursor-pointer"
-                  id="customer-date-input"
-                />
-                @if (selectedDate()) {
-                  <button
-                    type="button"
-                    (click)="clearDateFilter()"
-                    class="w-5 h-5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer"
-                    title="Date hatayein"
-                    id="clear-date-filter-btn"
-                  >
-                    <mat-icon class="text-xs! w-3! h-3!">close</mat-icon>
-                  </button>
-                }
-                <button
-                  type="button"
-                  (click)="isDateFilterOpen.set(false)"
-                  class="text-slate-400 hover:text-slate-700 text-xs ml-0.5 cursor-pointer"
-                  title="Done"
-                  id="close-date-picker-btn"
-                >
-                  <mat-icon class="text-xs! w-3.5! h-3.5!">check</mat-icon>
-                </button>
-              </div>
-            }
+            <button
+              type="button"
+              (click)="isCalendarModalOpen.set(true)"
+              class="h-9 px-3.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all shadow-2xs active:scale-95"
+              [class.bg-[#dcfce7]]="selectedDate()"
+              [class.border-[#86efac]]="selectedDate()"
+              [class.text-[#15803d]]="selectedDate()"
+              [class.bg-white]="!selectedDate()"
+              [class.border-slate-200]="!selectedDate()"
+              [class.text-[#1e293b]]="!selectedDate()"
+              [title]="i18n.t().filterByDate"
+              id="open-calendar-filter-btn"
+            >
+              <mat-icon class="text-sm! w-4! h-4!" [class.text-[#16a34a]]="selectedDate()" [class.text-[#007aff]]="!selectedDate()">calendar_month</mat-icon>
+              @if (selectedDate()) {
+                <span class="text-[11px] font-bold">{{ formatDisplayDate(selectedDate()) }}</span>
+              } @else {
+                <span class="hidden sm:inline text-[11px]">{{ i18n.t().calendar }}</span>
+                <span class="sm:hidden text-[11px]">{{ i18n.t().date }}</span>
+              }
+            </button>
+          </div>
+
+          <!-- Add Customer Button in List -->
+          <div class="relative shrink-0">
+            <button
+              type="button"
+              (click)="openAddCustomer.emit()"
+              class="h-9 px-3 sm:px-3.5 rounded-xl bg-[#007aff] hover:bg-[#0062cc] text-white text-xs font-bold flex items-center gap-1 cursor-pointer transition-all shadow-xs active:scale-95"
+              title="Add Customer"
+              id="list-add-customer-btn"
+            >
+              <mat-icon class="text-sm! w-4! h-4!">person_add</mat-icon>
+              <span class="hidden sm:inline">{{ i18n.t().addCustomerBtn }}</span>
+              <span class="sm:hidden">{{ i18n.t().customers }}</span>
+            </button>
           </div>
         </div>
       </div>
 
       <!-- Active Date Filter Pill Banner (if selected) -->
       @if (selectedDate()) {
-        <div class="flex items-center justify-between gap-2 text-xs bg-blue-50 border border-blue-200/80 rounded-2xl px-3.5 py-1.5 text-blue-950 animate-in fade-in duration-150">
+        <div class="flex items-center justify-between gap-2 text-xs bg-[#e6f8ef] border border-[#86efac]/40 rounded-2xl px-3.5 py-2 text-emerald-950 animate-in fade-in duration-150">
           <div class="flex items-center gap-2 truncate">
-            <mat-icon class="text-sm! w-4! h-4! text-blue-600 shrink-0">filter_alt</mat-icon>
-            <span class="truncate">Tarikh filter: <strong>{{ formatDisplayDate(selectedDate()) }}</strong> ({{ filteredCustomers().length }} grahak)</span>
+            <div class="w-6 h-6 rounded-lg bg-[#dcfce7] text-[#16a34a] flex items-center justify-center shrink-0">
+              <mat-icon class="text-xs! w-3.5! h-3.5!">event</mat-icon>
+            </div>
+            <span class="truncate">{{ i18n.t().selectedDateLabel }}: <strong>{{ formatDisplayDate(selectedDate()) }}</strong> ({{ filteredCustomers().length }} {{ i18n.t().customersWithTx }})</span>
           </div>
-          <button
-            type="button"
-            (click)="clearDateFilter()"
-            class="text-[11px] font-bold text-blue-700 hover:text-blue-900 underline cursor-pointer shrink-0"
-            id="remove-active-date-filter-btn"
-          >
-            Hatayein
-          </button>
+          <div class="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              (click)="isCalendarModalOpen.set(true)"
+              class="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 hover:underline cursor-pointer"
+              id="change-active-date-btn"
+            >
+              {{ i18n.t().changeDateBtn }}
+            </button>
+            <span class="text-emerald-300">|</span>
+            <button
+              type="button"
+              (click)="clearDateFilter()"
+              class="text-[11px] font-bold text-rose-500 hover:text-rose-600 hover:underline cursor-pointer"
+              id="remove-active-date-filter-btn"
+            >
+              {{ i18n.t().removeFilterBtn }}
+            </button>
+          </div>
         </div>
       }
 
-      <!-- Filter Segmented Tabs & Sort Bar -->
+      <!-- Calendar Picker Modal -->
+      @if (isCalendarModalOpen()) {
+        <app-calendar-picker-modal
+          [initialDate]="selectedDate()"
+          (dateSelected)="onCalendarDateSelected($event)"
+          (closeModal)="isCalendarModalOpen.set(false)"
+        />
+      }
+
+      <!-- Segmented Control Tabs & Sort Bar -->
       <div class="flex flex-wrap items-center justify-between gap-2.5">
-        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+        <div class="ios-segmented-control flex items-center overflow-x-auto scrollbar-none">
           
           <button
             type="button"
             (click)="filterType.set('all')"
-            class="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs"
-            [class.bg-slate-900]="filterType() === 'all'"
-            [class.text-white]="filterType() === 'all'"
-            [class.bg-white]="filterType() !== 'all'"
-            [class.text-slate-600]="filterType() !== 'all'"
-            [class.border]="filterType() !== 'all'"
-            [class.border-slate-200]="filterType() !== 'all'"
+            class="px-3.5 py-1.5 ios-segmented-btn cursor-pointer whitespace-nowrap"
+            [class.ios-segmented-btn-active]="filterType() === 'all'"
+            [class.text-slate-500]="filterType() !== 'all'"
             id="filter-all-btn"
           >
-            Sabhi ({{ ledger.overview().totalCustomerCount }})
+            {{ i18n.t().filterAll }} ({{ ledger.overview().totalCustomerCount }})
           </button>
 
           <button
             type="button"
             (click)="filterType.set('due')"
-            class="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shadow-2xs"
-            [class.bg-rose-600]="filterType() === 'due'"
-            [class.text-white]="filterType() === 'due'"
-            [class.bg-white]="filterType() !== 'due'"
-            [class.text-rose-700]="filterType() !== 'due'"
-            [class.border]="filterType() !== 'due'"
-            [class.border-rose-200]="filterType() !== 'due'"
+            class="px-3.5 py-1.5 ios-segmented-btn cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+            [class.ios-segmented-btn-active]="filterType() === 'due'"
+            [class.text-rose-600]="filterType() !== 'due'"
             id="filter-due-btn"
           >
-            <span class="w-1.5 h-1.5 rounded-full" [class.bg-white]="filterType() === 'due'" [class.bg-rose-500]="filterType() !== 'due'"></span>
-            <span>Lena Hai ({{ ledger.overview().dueCustomerCount }})</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#ff3b30]"></span>
+            <span>{{ i18n.t().filterDue }} ({{ ledger.overview().dueCustomerCount }})</span>
           </button>
 
           <button
             type="button"
             (click)="filterType.set('advance')"
-            class="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shadow-2xs"
-            [class.bg-emerald-600]="filterType() === 'advance'"
-            [class.text-white]="filterType() === 'advance'"
-            [class.bg-white]="filterType() !== 'advance'"
-            [class.text-emerald-700]="filterType() !== 'advance'"
-            [class.border]="filterType() !== 'advance'"
-            [class.border-emerald-200]="filterType() !== 'advance'"
+            class="px-3.5 py-1.5 ios-segmented-btn cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+            [class.ios-segmented-btn-active]="filterType() === 'advance'"
+            [class.text-emerald-600]="filterType() !== 'advance'"
             id="filter-advance-btn"
           >
-            <span class="w-1.5 h-1.5 rounded-full" [class.bg-white]="filterType() === 'advance'" [class.bg-emerald-500]="filterType() !== 'advance'"></span>
-            <span>Dena Hai ({{ ledger.overview().advanceCustomerCount }})</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#34c759]"></span>
+            <span>{{ i18n.t().filterAdvance }} ({{ ledger.overview().advanceCustomerCount }})</span>
           </button>
 
           <button
             type="button"
             (click)="filterType.set('settled')"
-            class="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs"
-            [class.bg-slate-900]="filterType() === 'settled'"
-            [class.text-white]="filterType() === 'settled'"
-            [class.bg-white]="filterType() !== 'settled'"
-            [class.text-slate-600]="filterType() !== 'settled'"
-            [class.border]="filterType() !== 'settled'"
-            [class.border-slate-200]="filterType() !== 'settled'"
+            class="px-3.5 py-1.5 ios-segmented-btn cursor-pointer whitespace-nowrap"
+            [class.ios-segmented-btn-active]="filterType() === 'settled'"
+            [class.text-slate-500]="filterType() !== 'settled'"
             id="filter-settled-btn"
           >
-            Barabar ({{ ledger.overview().settledCustomerCount }})
+            {{ i18n.t().filterSettled }} ({{ ledger.overview().settledCustomerCount }})
           </button>
 
         </div>
 
         <!-- Sort Selector in clean pill -->
-        <div class="flex items-center gap-1.5 text-xs text-slate-500 bg-white border border-slate-200/80 px-3 py-1 rounded-full shadow-2xs">
+        <div class="flex items-center gap-1.5 text-xs text-slate-500 bg-white border border-black/[0.06] px-3 py-1 rounded-full shadow-2xs">
           <mat-icon class="text-xs! w-3.5! h-3.5! text-slate-400">sort</mat-icon>
           <select
             [value]="sortOrder()"
@@ -199,18 +188,18 @@ import { CustomerSummary } from '../models/ledger.models';
             class="bg-transparent border-0 text-xs font-bold text-slate-700 focus:ring-0 cursor-pointer outline-hidden"
             id="customer-sort-select"
           >
-            <option value="balance-desc">Zyada Baaki (High to Low)</option>
-            <option value="recent">Haliye Len-Den (Recent)</option>
-            <option value="name">Naam (A to Z)</option>
+            <option value="balance-desc">{{ i18n.t().sortHighBalance }}</option>
+            <option value="recent">{{ i18n.t().sortRecent }}</option>
+            <option value="name">{{ i18n.t().sortName }}</option>
           </select>
         </div>
 
       </div>
 
-      <!-- Customer Cards List (Clean Floating Cards with Soft Shadow Matching Screenshot) -->
-      <div class="space-y-2.5">
+      <!-- Customer Cards List -->
+      <div class="space-y-2">
         @if (filteredCustomers().length === 0) {
-          <div class="p-8 text-center app-card my-2">
+          <div class="p-8 text-center ios-card my-2">
             <div class="w-14 h-14 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
               @if (!ledger.sheetConfig().scriptUrl) {
                 <mat-icon class="text-2xl! w-7! h-7! text-amber-500">cloud_off</mat-icon>
@@ -219,49 +208,49 @@ import { CustomerSummary } from '../models/ledger.models';
               }
             </div>
             @if (!ledger.sheetConfig().scriptUrl) {
-              <h4 class="text-sm font-bold text-slate-800">Google Sheet Connect Karein</h4>
+              <h4 class="text-sm font-bold text-slate-800">{{ i18n.t().connectSheetPrompt }}</h4>
               <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
-                Bahi-khata direct Google Sheet me automatically sync hoga. Shuru karne ke liye pehle apni Sheet connect karein.
+                {{ i18n.t().connectSheetDesc }}
               </p>
             } @else {
-              <h4 class="text-sm font-bold text-slate-700">Koi grahak nahi mila</h4>
+              <h4 class="text-sm font-bold text-slate-700">{{ i18n.t().noCustomerFound }}</h4>
               <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
                 @if (selectedDate()) {
-                  Tarikh <strong>{{ formatDisplayDate(selectedDate()) }}</strong> ko koi bhi len-den record nahi mila.
+                  {{ i18n.t().noRecordOnDate }} <strong>{{ formatDisplayDate(selectedDate()) }}</strong>
                 } @else if (searchTerm()) {
-                  "{{ searchTerm() }}" se milta julta koi grahak nahi mila.
+                  "{{ searchTerm() }}"
                 } @else {
-                  Is category me abhi koi record nahi hai.
+                  {{ i18n.t().noRecordInCategory }}
                 }
               </p>
               @if (selectedDate()) {
                 <button
                   type="button"
                   (click)="clearDateFilter()"
-                  class="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold hover:bg-blue-100 cursor-pointer transition-colors"
+                  class="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-50 text-[#007aff] text-xs font-bold hover:bg-blue-100 cursor-pointer transition-colors"
                   id="empty-reset-date-filter-btn"
                 >
                   <mat-icon class="text-xs! w-3.5! h-3.5!">event_busy</mat-icon>
-                  <span>Sabhi Tarikh Dekhein (Reset)</span>
+                  <span>{{ i18n.t().resetDateFilter }}</span>
                 </button>
               }
             }
             <button
               type="button"
               (click)="openAddCustomer.emit()"
-              class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 app-btn-primary text-xs cursor-pointer"
+              class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 ios-btn-primary text-xs cursor-pointer"
               id="empty-add-customer-btn"
             >
               <mat-icon class="text-sm! w-4! h-4!">
                 {{ !ledger.sheetConfig().scriptUrl ? 'add_link' : 'person_add' }}
               </mat-icon>
-              <span>{{ !ledger.sheetConfig().scriptUrl ? 'Sheet Connect Karein' : '+ Naya Grahak Jodein' }}</span>
+              <span>{{ !ledger.sheetConfig().scriptUrl ? i18n.t().connectSheetPrompt : i18n.t().addCustomerBtn }}</span>
             </button>
           </div>
         } @else {
           @for (item of filteredCustomers(); track item.customer.id) {
             <div
-              class="app-card-interactive p-3.5 sm:p-4 flex items-center justify-between gap-3 group"
+              class="ios-card-interactive p-3 sm:p-3.5 flex items-center justify-between gap-3 group"
               [id]="'customer-row-' + item.customer.id"
             >
               <!-- Clickable Area for Customer Details -->
@@ -270,40 +259,39 @@ import { CustomerSummary } from '../models/ledger.models';
                 (click)="selectCustomer(item.customer.id)"
                 class="flex items-center justify-between flex-1 min-w-0 text-left cursor-pointer outline-hidden"
               >
-                <!-- Left: Status Badge Pill + Info (Direct match to screenshot item design) -->
+                <!-- Left: Squircle Avatar + Customer Info -->
                 <div class="flex items-center gap-3 min-w-0 pr-2">
                   
-                  <!-- Left Status Pill (Like time tags '10:30' in screenshot) -->
                   <div
-                    class="px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wider shrink-0 uppercase"
-                    [class.badge-pill-rose]="item.status === 'due'"
-                    [class.badge-pill-mint]="item.status === 'advance'"
-                    [class.badge-pill-blue]="item.status === 'settled'"
+                    class="w-11 h-11 rounded-[12px] flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs"
+                    [class.bg-[#fef4ea]]="item.status === 'due'"
+                    [class.text-[#c2410c]]="item.status === 'due'"
+                    [class.border]="true"
+                    [class.border-[#fed7aa]/60]="item.status === 'due'"
+                    [class.bg-[#eafaf1]]="item.status === 'advance'"
+                    [class.text-[#15803d]]="item.status === 'advance'"
+                    [class.border-[#86efac]/60]="item.status === 'advance'"
+                    [class.bg-[#e8f2fc]]="item.status === 'settled'"
+                    [class.text-[#0369a1]]="item.status === 'settled'"
+                    [class.border-[#bae6fd]/60]="item.status === 'settled'"
                   >
-                    @if (item.status === 'due') {
-                      Lena
-                    } @else if (item.status === 'advance') {
-                      Dena
-                    } @else {
-                      Nill
-                    }
+                    {{ item.customer.name.slice(0, 1).toUpperCase() }}
                   </div>
 
-                  <!-- Customer Name & Details -->
                   <div class="min-w-0">
-                    <h3 class="text-sm sm:text-base font-bold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+                    <h3 class="text-sm sm:text-base font-bold text-[#1c1c1e] truncate group-hover:text-[#007aff] transition-colors">
                       {{ item.customer.name }}
                     </h3>
 
-                    <div class="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5 font-medium">
+                    <div class="flex items-center gap-2 text-[11px] text-[#8e8e93] mt-0.5 font-medium">
                       @if (item.customer.phone) {
-                        <span class="truncate">{{ item.customer.phone }}</span>
+                        <span class="truncate">+91 {{ item.customer.phone }}</span>
                       }
                       @if (item.customer.phone && item.lastTransaction) {
                         <span>•</span>
                       }
                       @if (item.lastTransaction) {
-                        <span class="truncate text-slate-500">
+                        <span class="truncate text-slate-500 font-semibold">
                           {{ formatRelativeDate(item.lastTransaction.date) }}
                         </span>
                       }
@@ -312,51 +300,56 @@ import { CustomerSummary } from '../models/ledger.models';
 
                 </div>
 
-                <!-- Right: Balance Amount -->
+                <!-- Right: Balance Amount & Status Tag -->
                 <div class="text-right shrink-0 pr-2">
                   <div
                     class="text-sm sm:text-base font-black tracking-tight"
-                    [class.text-rose-600]="item.status === 'due'"
-                    [class.text-emerald-600]="item.status === 'advance'"
-                    [class.text-slate-500]="item.status === 'settled'"
+                    [class.text-[#ea580c]]="item.status === 'due'"
+                    [class.text-[#16a34a]]="item.status === 'advance'"
+                    [class.text-[#64748b]]="item.status === 'settled'"
                   >
                     ₹{{ formatAmount(item.netBalance) }}
                   </div>
-                  <div
-                    class="text-[10px] font-extrabold uppercase tracking-wider"
-                    [class.text-rose-500]="item.status === 'due'"
-                    [class.text-emerald-600]="item.status === 'advance'"
-                    [class.text-slate-400]="item.status === 'settled'"
-                  >
-                    @if (item.status === 'due') {
-                      Lena Hai
-                    } @else if (item.status === 'advance') {
-                      Dena Hai
-                    } @else {
-                      Barabar
-                    }
+                  <div class="mt-0.5">
+                    <span
+                      class="text-[10px] font-bold tracking-tight px-2 py-0.5 rounded-full"
+                      [class.bg-[#ffedd5]]="item.status === 'due'"
+                      [class.text-[#c2410c]]="item.status === 'due'"
+                      [class.bg-[#dcfce7]]="item.status === 'advance'"
+                      [class.text-[#15803d]]="item.status === 'advance'"
+                      [class.bg-slate-100]="item.status === 'settled'"
+                      [class.text-slate-500]="item.status === 'settled'"
+                    >
+                      @if (item.status === 'due') {
+                        {{ i18n.t().filterDue }}
+                      } @else if (item.status === 'advance') {
+                        {{ i18n.t().filterAdvance }}
+                      } @else {
+                        {{ i18n.t().filterSettled }}
+                      }
+                    </span>
                   </div>
                 </div>
               </button>
 
-              <!-- Far Right Action: Circular WhatsApp or Arrow Button (Matching circular controls in screenshot) -->
+              <!-- Far Right Action: WhatsApp Reminder or Chevron -->
               <div class="flex items-center shrink-0">
                 @if (item.status === 'due' && item.customer.phone) {
                   <a
                     [href]="ledger.getWhatsAppShareUrl(item.customer, item.netBalance)"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex items-center justify-center transition-all border border-emerald-200/60"
-                    title="WhatsApp Reminder bhejein"
+                    class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#eafaf1] text-[#15803d] hover:bg-[#dcfce7] flex items-center justify-center transition-all border border-[#86efac]/60 active:scale-95 shadow-2xs"
+                    [title]="i18n.t().sendWaReminderBtn"
                     [id]="'wa-reminder-' + item.customer.id"
                   >
-                    <mat-icon class="text-xs! w-3.5! h-3.5!">chat</mat-icon>
+                    <mat-icon class="text-xs! w-3.5! h-3.5! text-[#10b981]">chat</mat-icon>
                   </a>
                 } @else {
                   <button
                     type="button"
                     (click)="selectCustomer(item.customer.id)"
-                    class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center cursor-pointer transition-all"
+                    class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 text-[#8e8e93] hover:bg-slate-200 hover:text-[#1c1c1e] flex items-center justify-center cursor-pointer transition-all active:scale-95"
                     title="View Details"
                   >
                     <mat-icon class="text-xs! w-3.5! h-3.5!">chevron_right</mat-icon>
@@ -371,7 +364,7 @@ import { CustomerSummary } from '../models/ledger.models';
 
       <!-- Bottom bar: Customer Count & Add Customer Trigger -->
       <div class="mt-4 pt-3 border-t border-slate-200/70 flex items-center justify-between text-xs text-slate-500 px-1">
-        <span>Kul Grahak: <strong class="text-slate-800 font-bold">{{ filteredCustomers().length }}</strong></span>
+        <span>{{ i18n.t().totalCustomersLabel }}: <strong class="text-slate-800 font-bold">{{ filteredCustomers().length }}</strong></span>
         <button
           type="button"
           (click)="openAddCustomer.emit()"
@@ -379,7 +372,7 @@ import { CustomerSummary } from '../models/ledger.models';
           id="list-bottom-add-customer-btn"
         >
           <mat-icon class="text-xs! w-3.5! h-3.5!">add</mat-icon>
-          <span>Naya Grahak</span>
+          <span>{{ i18n.t().addCustomerBtn }}</span>
         </button>
       </div>
 
@@ -388,6 +381,7 @@ import { CustomerSummary } from '../models/ledger.models';
 })
 export class CustomerList {
   readonly ledger = inject(Ledger);
+  readonly i18n = inject(I18nService);
   readonly openAddCustomer = output<void>();
   readonly initialFilter = input<'all' | 'due' | 'advance' | 'settled'>('all');
 
@@ -395,7 +389,7 @@ export class CustomerList {
   readonly filterType = signal<'all' | 'due' | 'advance' | 'settled'>('all');
   readonly sortOrder = signal<'balance-desc' | 'recent' | 'name'>('balance-desc');
   readonly selectedDate = signal<string>('');
-  readonly isDateFilterOpen = signal<boolean>(false);
+  readonly isCalendarModalOpen = signal<boolean>(false);
 
   constructor() {
     effect(() => {
@@ -416,9 +410,9 @@ export class CustomerList {
     this.sortOrder.set(select.value as 'balance-desc' | 'recent' | 'name');
   }
 
-  onDateChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.selectedDate.set(input.value);
+  onCalendarDateSelected(dateStr: string): void {
+    this.selectedDate.set(dateStr);
+    this.isCalendarModalOpen.set(false);
   }
 
   clearDateFilter(): void {
@@ -430,7 +424,8 @@ export class CustomerList {
     try {
       const [year, month, day] = dateStr.split('-').map(Number);
       const d = new Date(year, month - 1, day);
-      return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+      const locale = this.i18n.currentLanguage() === 'hi' ? 'hi-IN' : 'en-IN';
+      return d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
     } catch {
       return dateStr;
     }
@@ -451,7 +446,7 @@ export class CustomerList {
     const sort = this.sortOrder();
     const dateVal = this.selectedDate();
 
-    // 1. Filter by specific date if selected (matches transactions on that calendar day)
+    // 1. Filter by specific date if selected
     if (dateVal) {
       const activeCustIds = new Set(
         this.ledger
@@ -515,10 +510,12 @@ export class CustomerList {
       const d = new Date(dateStr);
       const diffMs = Date.now() - d.getTime();
       const diffDays = Math.floor(diffMs / 86400000);
-      if (diffDays === 0) return 'Aaj';
-      if (diffDays === 1) return 'Kal';
-      if (diffDays < 7) return `${diffDays} din pehle`;
-      return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+      const isHi = this.i18n.currentLanguage() === 'hi';
+      if (diffDays === 0) return isHi ? 'आज' : 'Today';
+      if (diffDays === 1) return isHi ? 'कल' : 'Yesterday';
+      if (diffDays < 7) return isHi ? `${diffDays} दिन पहले` : `${diffDays}d ago`;
+      const locale = isHi ? 'hi-IN' : 'en-IN';
+      return d.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
     } catch {
       return dateStr;
     }
