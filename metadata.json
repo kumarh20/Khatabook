@@ -1,0 +1,6 @@
+{
+  "name": "OkCredit - Udhar Bahi Khata",
+  "description": "Digital ledger and credit management app for recording customer udhar, payments, balances, and real-time Google Sheets sync.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

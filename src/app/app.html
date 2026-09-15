@@ -1,0 +1,168 @@
+<div class="min-h-screen flex flex-col bg-[#F5F7FB] text-slate-800 antialiased selection:bg-blue-100 selection:text-blue-900">
+  
+  <!-- App Header with Section Tabs -->
+  <app-header
+    [currentView]="currentView()"
+    (viewChange)="switchView($event)"
+    (openAddCustomer)="openAddCustomer()"
+    (openSheetSettings)="isSheetModalOpen.set(true)"
+  ></app-header>
+
+  <!-- Main Content Container (pb-24 on mobile for bottom nav) -->
+  <main class="flex-1 w-full max-w-4xl mx-auto px-3.5 sm:px-6 py-4 sm:py-6 pb-24 sm:pb-8">
+    
+    <!-- First Time / No Sheet Notification Banner -->
+    @if (!ledger.sheetConfig().scriptUrl) {
+      <div class="mb-5 p-4 sm:p-5 rounded-3xl bg-linear-to-r from-amber-50 to-orange-50/40 border border-amber-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in duration-200">
+        <div class="flex items-start gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 border border-amber-200/60">
+            <mat-icon class="text-xl! w-5! h-5!">cloud_off</mat-icon>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h2 class="font-black text-sm sm:text-base text-slate-900 tracking-tight">
+                Pehle Google Sheet Connect Karein
+              </h2>
+              <span class="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-800 text-[10px] font-black uppercase tracking-wider border border-amber-400/30">
+                Direct Cloud Sync
+              </span>
+            </div>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed max-w-xl font-medium">
+              Aapka koi bhi hisab-kitab local ya browser storage me save nahi hota. Sabhi records direct aapke Google Drive Sheet me automatically sync hote hain.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          (click)="isSheetModalOpen.set(true)"
+          class="app-btn-primary inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-black cursor-pointer shrink-0"
+          id="connect-sheet-banner-btn"
+        >
+          <mat-icon class="text-base! w-4! h-4!">add_link</mat-icon>
+          <span>Sheet Connect Karein</span>
+        </button>
+      </div>
+    }
+
+    <!-- Initial Loading Indicator -->
+    @if (ledger.isInitialLoading()) {
+      <div class="mb-5 p-3.5 rounded-2xl bg-white border border-slate-200/80 text-emerald-900 flex items-center justify-center gap-2.5 shadow-2xs">
+        <mat-icon class="text-lg! w-4! h-4! animate-spin text-emerald-600">sync</mat-icon>
+        <span class="text-xs font-bold">Google Sheet se hisab-kitab load ho raha hai...</span>
+      </div>
+    }
+
+    <!-- Section Routing -->
+    @if (ledger.activeCustomerId()) {
+      <!-- Individual Customer Ledger View -->
+      <app-customer-detail
+        (backToList)="ledger.selectCustomer(null)"
+        (editCustomer)="openEditCustomer()"
+        (openStatement)="isStatementModalOpen.set(true)"
+        (openAddTx)="openAddTransaction($event)"
+        (editTx)="openEditTransaction($event)"
+      ></app-customer-detail>
+    } @else {
+      @switch (currentView()) {
+        
+        <!-- SECTION 1: DASHBOARD -->
+        @case ('dashboard') {
+          <app-dashboard-view
+            (openAddCustomer)="openAddCustomer()"
+            (openSheetModal)="isSheetModalOpen.set(true)"
+            (openStatementModal)="isStatementModalOpen.set(true)"
+            (goToCustomers)="goToCustomersWithFilter($event)"
+            (goToProfile)="goToProfileWithTab($event)"
+          ></app-dashboard-view>
+        }
+
+        <!-- SECTION 2: GRAHAK LIST -->
+        @case ('customers') {
+          <app-customer-list
+            #customerListRef
+            [initialFilter]="customerFilter()"
+            (openAddCustomer)="openAddCustomer()"
+          ></app-customer-list>
+        }
+
+        <!-- SECTION 3: PROFILE & DUKAN -->
+        @case ('profile') {
+          <app-profile-view
+            [initialTab]="profileTab()"
+            (tabChange)="profileTab.set($event)"
+            (openSheetModal)="isSheetModalOpen.set(true)"
+          ></app-profile-view>
+        }
+
+      }
+    }
+
+  </main>
+
+  <!-- Fixed Mobile Bottom Navigation Bar (Hidden when inside customer detail on mobile) -->
+  @if (!ledger.activeCustomerId()) {
+    <app-bottom-nav
+      [currentView]="currentView()"
+      (viewChange)="switchView($event)"
+    ></app-bottom-nav>
+  }
+
+  <!-- Modals -->
+  @if (isCustomerModalOpen()) {
+    <app-customer-modal
+      [editingCustomer]="editingCustomer()"
+      (closeModal)="closeCustomerModal()"
+    ></app-customer-modal>
+  }
+
+  @if (isTxModalOpen()) {
+    <app-transaction-modal
+      [initialType]="txModalType()"
+      [editingTx]="editingTx()"
+      (closeModal)="closeTxModal()"
+    ></app-transaction-modal>
+  }
+
+  @if (isSheetModalOpen()) {
+    <app-sheet-modal
+      (closeModal)="isSheetModalOpen.set(false)"
+    ></app-sheet-modal>
+  }
+
+  @if (isStatementModalOpen()) {
+    <app-statement-modal
+      (closeModal)="isStatementModalOpen.set(false)"
+    ></app-statement-modal>
+  }
+
+  <!-- Toast Notification Popup -->
+  @if (ledger.toastMessage(); as toast) {
+    <div class="fixed bottom-20 sm:bottom-5 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-5 duration-200">
+      <div
+        class="flex items-center gap-2.5 px-5 py-3 rounded-full bg-slate-900/95 backdrop-blur-md text-white shadow-xl text-xs font-bold"
+        id="toast-notification"
+      >
+        <mat-icon class="text-base! w-4! h-4!" [class.text-emerald-400]="toast.type === 'success'" [class.text-rose-400]="toast.type === 'error'" [class.text-sky-400]="toast.type === 'info'">
+          @if (toast.type === 'success') {
+            check_circle
+          } @else if (toast.type === 'error') {
+            error
+          } @else {
+            info
+          }
+        </mat-icon>
+        <span>{{ toast.text }}</span>
+        <button
+          type="button"
+          (click)="ledger.dismissToast()"
+          class="ml-2 w-5 h-5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
+          title="Dismiss"
+          id="dismiss-toast-btn"
+        >
+          <mat-icon class="text-xs! w-3! h-3!">close</mat-icon>
+        </button>
+      </div>
+    </div>
+  }
+
+</div>

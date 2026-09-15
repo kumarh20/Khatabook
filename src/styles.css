@@ -1,0 +1,229 @@
+/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --color-app-bg: #f0f5fa;
+}
+
+html, body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  min-height: 100%;
+  background-color: #f0f5fa;
+  color: #0f172a;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ===================================================
+   MODERN PASTEL MOBILE APP THEME (MATCHING SCREENSHOT)
+   =================================================== */
+
+/* Crisp elevated card with soft subtle diffusion */
+.app-card {
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+  border-color: rgba(203, 213, 225, 0.9);
+}
+
+.app-card-interactive:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04);
+}
+
+/* Soft Pastel Gradient Hero Cards (From Screenshot) */
+.hero-gradient-blue {
+  background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 50%, #ede9fe 100%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.12), 0 4px 10px -2px rgba(99, 102, 241, 0.08);
+}
+
+.hero-gradient-mint {
+  background: linear-gradient(135deg, #d1fae5 0%, #ccfbf1 50%, #e0f2fe 100%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.12), 0 4px 10px -2px rgba(20, 184, 166, 0.08);
+}
+
+.hero-gradient-purple {
+  background: linear-gradient(135deg, #ede9fe 0%, #f3e8ff 50%, #fae8ff 100%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.12), 0 4px 10px -2px rgba(168, 85, 247, 0.08);
+}
+
+.hero-gradient-coral {
+  background: linear-gradient(135deg, #ffe4e6 0%, #fee2e2 50%, #fef3c7 100%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10px 25px -5px rgba(244, 63, 94, 0.12), 0 4px 10px -2px rgba(239, 68, 68, 0.08);
+}
+
+/* Quick Action / Squircle Icon Card */
+.app-action-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(241, 245, 249, 1);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+  transition: all 0.2s ease;
+}
+
+.app-action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+  border-color: rgba(226, 232, 240, 1);
+}
+
+/* Crisp Clean Button */
+.app-btn-primary {
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 16px;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+  transition: all 0.2s ease;
+}
+
+.app-btn-primary:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.2);
+}
+
+.app-btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Secondary Button */
+.app-btn-secondary {
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: all 0.2s ease;
+}
+
+.app-btn-secondary:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+/* Icon Button */
+.app-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  color: #475569;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.app-icon-btn:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.app-icon-btn:active {
+  transform: translateY(0);
+}
+
+/* Pill Badges */
+.badge-pill-mint {
+  background-color: #ecfdf5;
+  color: #059669;
+  border: 1px solid #d1fae5;
+}
+
+.badge-pill-rose {
+  background-color: #fff1f2;
+  color: #e11d48;
+  border: 1px solid #ffe4e6;
+}
+
+.badge-pill-blue {
+  background-color: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+}
+
+.badge-pill-purple {
+  background-color: #faf5ff;
+  color: #7c3aed;
+  border: 1px solid #ede9fe;
+}
+
+.badge-pill-amber {
+  background-color: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fef3c7;
+}
+
+/* Modern Input Style */
+.app-input {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
+  transition: all 0.2s ease;
+}
+
+.app-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+/* Custom scrollbar for clean ledger view */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Print styles for customer statement */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-statement, #printable-statement * {
+    visibility: visible;
+  }
+  #printable-statement {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    background: white !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
+
