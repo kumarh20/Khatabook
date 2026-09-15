@@ -41,6 +41,16 @@ const COOKIE_KEYS = {
   CATEGORY: 'okcredit_category'
 };
 
+interface SheetApiResponse {
+  status?: string;
+  message?: string;
+  sheetName?: string;
+  isPermissionError?: boolean;
+  error?: string;
+  customers?: Customer[];
+  transactions?: Transaction[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -654,32 +664,66 @@ export class Ledger {
     }
 
     try {
-      const response = await fetch('/api/sheet-proxy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          scriptUrl: cleanUrl,
-          action: 'test'
-        })
-      });
+      // First attempt backend proxy (for local dev / SSR)
+      let resData: SheetApiResponse | null = null;
+      let isSuccess = false;
 
-      const resData = await response.json();
-      if (response.ok && resData.status === 'success') {
+      try {
+        const response = await fetch('/api/sheet-proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            scriptUrl: cleanUrl,
+            action: 'test'
+          })
+        });
+
+        if (response.status !== 404) {
+          resData = await response.json();
+          isSuccess = response.ok && resData?.status === 'success';
+        }
+      } catch {
+        // Backend proxy unavailable (e.g. static hosting on GitHub Pages)
+        resData = null;
+      }
+
+      // If backend proxy not available or 404, fallback to direct client-side fetch (GitHub Pages mode)
+      if (!resData) {
+        const testUrl = new URL(cleanUrl);
+        testUrl.searchParams.set('action', 'test');
+        const directRes = await fetch(testUrl.toString(), {
+          method: 'GET',
+          redirect: 'follow',
+          headers: { Accept: 'application/json, text/plain, */*' }
+        });
+        const text = await directRes.text();
+        try {
+          resData = JSON.parse(text);
+          isSuccess = resData?.status === 'success';
+        } catch {
+          return {
+            success: false,
+            message: 'Google Apps Script se valid response nahi mila. Check karein ki "Who has access" = "Anyone" set hai.'
+          };
+        }
+      }
+
+      if (isSuccess) {
         return {
           success: true,
-          message: resData.message || 'Sheet se connection successful!',
-          sheetName: resData.sheetName || 'Google Sheet'
+          message: resData?.message || 'Sheet se connection successful!',
+          sheetName: resData?.sheetName || 'Google Sheet'
         };
       } else {
         return {
           success: false,
-          isPermissionError: resData.isPermissionError,
-          message: resData.error || resData.message || 'Connection fail hua. Kripya URL check karein.'
+          isPermissionError: resData?.isPermissionError,
+          message: resData?.error || resData?.message || 'Connection fail hua. Kripya URL check karein.'
         };
       }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Network error';
-      return { success: false, message: `Server error: ${msg}` };
+      return { success: false, message: `Connection error: ${msg}` };
     }
   }
 
@@ -715,19 +759,50 @@ export class Ledger {
         transactions: this.transactions()
       };
 
-      const response = await fetch('/api/sheet-proxy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          scriptUrl: config.scriptUrl,
-          action: 'saveData',
-          data: payload
-        })
-      });
+      let resData: SheetApiResponse | null = null;
+      let isSuccess = false;
 
-      const resData = await response.json();
+      // 1. Try server-side proxy first (for dev/SSR)
+      try {
+        const response = await fetch('/api/sheet-proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            scriptUrl: config.scriptUrl,
+            action: 'saveData',
+            data: payload
+          })
+        });
 
-      if (response.ok && resData.status === 'success') {
+        if (response.status !== 404) {
+          resData = await response.json();
+          isSuccess = response.ok && resData?.status === 'success';
+        }
+      } catch {
+        resData = null;
+      }
+
+      // 2. Static host fallback (direct browser POST with text/plain to bypass CORS preflight)
+      if (!resData) {
+        const directRes = await fetch(config.scriptUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'saveData',
+            data: payload
+          }),
+          redirect: 'follow'
+        });
+        const text = await directRes.text();
+        try {
+          resData = JSON.parse(text);
+          isSuccess = resData?.status === 'success';
+        } catch {
+          isSuccess = false;
+        }
+      }
+
+      if (isSuccess) {
         const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         setCookie(COOKIE_KEYS.LAST_SYNCED, nowStr, 365);
         this.sheetConfig.update((c) => ({
@@ -740,7 +815,7 @@ export class Ledger {
           this.showToast('Google Sheet me data safalta se sync ho gaya!', 'success');
         }
       } else {
-        const errorMsg = resData.error || resData.message || 'Sync failed';
+        const errorMsg = resData?.error || resData?.message || 'Sync failed';
         this.sheetConfig.update((c) => ({
           ...c,
           syncStatus: 'error',
@@ -775,18 +850,47 @@ export class Ledger {
     this.sheetConfig.update((c) => ({ ...c, syncStatus: 'syncing', errorMessage: undefined }));
 
     try {
-      const response = await fetch('/api/sheet-proxy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          scriptUrl: config.scriptUrl,
-          action: 'getData'
-        })
-      });
+      let resData: SheetApiResponse | null = null;
+      let isSuccess = false;
 
-      const resData = await response.json();
+      // 1. Try server-side proxy first
+      try {
+        const response = await fetch('/api/sheet-proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            scriptUrl: config.scriptUrl,
+            action: 'getData'
+          })
+        });
 
-      if (response.ok && resData.status === 'success') {
+        if (response.status !== 404) {
+          resData = await response.json();
+          isSuccess = response.ok && resData?.status === 'success';
+        }
+      } catch {
+        resData = null;
+      }
+
+      // 2. Static host fallback (direct GET fetch)
+      if (!resData) {
+        const pullUrl = new URL(config.scriptUrl);
+        pullUrl.searchParams.set('action', 'getData');
+        const directRes = await fetch(pullUrl.toString(), {
+          method: 'GET',
+          redirect: 'follow',
+          headers: { Accept: 'application/json, text/plain, */*' }
+        });
+        const text = await directRes.text();
+        try {
+          resData = JSON.parse(text);
+          isSuccess = resData?.status === 'success';
+        } catch {
+          isSuccess = false;
+        }
+      }
+
+      if (isSuccess && resData) {
         const sheetCustomers: Customer[] = (resData.customers || []).map((c: Customer) => ({
           ...c,
           id: c.id ? String(c.id) : generateUuid()
@@ -817,7 +921,7 @@ export class Ledger {
           }
         }
       } else {
-        throw new Error(resData.error || resData.message || 'Pull failed');
+        throw new Error(resData?.error || resData?.message || 'Pull failed');
       }
     } catch (e: unknown) {
       const errorMsg = e instanceof Error ? e.message : 'Network error';
