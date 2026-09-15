@@ -16,9 +16,103 @@ html, body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Plus Jakarta Sans", "SF Pro Text", system-ui, sans-serif;
   min-height: 100%;
   background-color: #f0f4f9;
-  color: #1e293b;
+  color: #334155;
   -webkit-tap-highlight-color: transparent;
   letter-spacing: -0.012em;
+}
+
+/* ===================================================
+   LIGHTWEIGHT ATTRACTIVE ANIMATIONS & PARALLAX
+   =================================================== */
+
+@keyframes fadeInUpSmooth {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatParallax {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(8px, -10px, 0) scale(1.05);
+  }
+  100% {
+    transform: translate3d(-6px, 6px, 0) scale(0.98);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes shimmerSweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUpSmooth 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-float-slow {
+  animation: floatParallax 8s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.animate-float-slow-reverse {
+  animation: floatParallax 10s ease-in-out infinite alternate-reverse;
+  will-change: transform;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+/* Parallax Hero Card Background */
+.hero-parallax-card {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 16px 36px -6px rgba(37, 99, 235, 0.28), 0 4px 14px -2px rgba(37, 99, 235, 0.12);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.hero-parallax-card:hover {
+  box-shadow: 0 20px 42px -6px rgba(37, 99, 235, 0.34), 0 6px 18px -2px rgba(37, 99, 235, 0.16);
+}
+
+.hero-parallax-bg {
+  position: absolute;
+  inset: -12px;
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.1) brightness(0.95);
+  transform: translate3d(0, 0, 0) scale(1.04);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.hero-parallax-card:hover .hero-parallax-bg {
+  transform: scale(1.08) translate3d(0, -3px, 0);
 }
 
 /* ===================================================

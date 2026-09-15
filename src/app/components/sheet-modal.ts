@@ -131,7 +131,9 @@ import { GOOGLE_APPS_SCRIPT_CODE } from '../services/sheet-script.template';
                   id="connect-sheet-btn"
                 >
                   @if (isTesting()) {
-                    <mat-icon class="text-xs! w-3.5! h-3.5! animate-spin">sync</mat-icon>
+                    <svg class="w-3.5 h-3.5 animate-spin shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                    </svg>
                     <span>Testing...</span>
                   } @else {
                     <mat-icon class="text-xs! w-3.5! h-3.5!">link</mat-icon>

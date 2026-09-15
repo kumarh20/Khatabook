@@ -12,103 +12,143 @@ import { I18nService } from '../services/i18n';
     @if (customer(); as cust) {
       <div class="space-y-3 sm:space-y-4 pb-28 animate-in fade-in duration-200">
         
-        <!-- Top Navigation Header (iOS Nav Bar) -->
-        <div class="flex items-center justify-between gap-3 ios-card p-3 sm:p-3.5">
-          
-          <!-- Back button & Customer Name -->
-          <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <button
-              type="button"
-              (click)="backToList.emit()"
-              class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/[0.04] hover:bg-black/[0.08] text-[#1c1c1e] flex items-center justify-center shrink-0 cursor-pointer transition-colors active:scale-95"
-              [title]="i18n.t().backToList"
-              id="detail-back-btn"
-            >
-              <mat-icon class="text-sm! w-4! h-4!">arrow_back_ios_new</mat-icon>
-            </button>
+        <!-- Top Customer Name Card (Clean, spacious, full name visible) -->
+        <div class="ios-card p-3.5 sm:p-4 flex items-start gap-3">
+          <button
+            type="button"
+            (click)="backToList.emit()"
+            class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center shrink-0 cursor-pointer transition-colors active:scale-95 mt-0.5"
+            [title]="i18n.t().backToList"
+            id="detail-back-btn"
+          >
+            <mat-icon class="text-sm! w-4! h-4!">arrow_back_ios_new</mat-icon>
+          </button>
 
-            <div class="min-w-0">
-              <h2 class="text-base sm:text-lg font-bold text-[#1c1c1e] truncate leading-tight tracking-tight">
-                {{ cust.name }}
-              </h2>
-              <div class="flex items-center gap-2 text-xs text-[#8e8e93] mt-0.5 font-medium">
-                @if (cust.phone) {
-                  <a [href]="'tel:' + cust.phone" class="hover:text-[#007aff] flex items-center gap-1 font-semibold">
-                    <mat-icon class="text-xs! w-3.5! h-3.5!">call</mat-icon>
-                    <span>+91 {{ cust.phone }}</span>
-                  </a>
-                }
-                @if (cust.address) {
-                  <span>•</span>
-                  <span class="truncate max-w-[120px] sm:max-w-xs">{{ cust.address }}</span>
-                }
-              </div>
+          <div class="min-w-0 flex-1">
+            <h2 class="text-base sm:text-lg font-bold text-slate-800 leading-snug tracking-tight break-words">
+              {{ cust.name }}
+            </h2>
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-500 mt-1 font-medium">
+              @if (cust.phone) {
+                <span class="font-semibold text-slate-700">+91 {{ cust.phone }}</span>
+              }
+              @if (cust.phone && cust.address) {
+                <span class="text-slate-300">•</span>
+              }
+              @if (cust.address) {
+                <span class="text-slate-600">{{ cust.address }}</span>
+              }
             </div>
           </div>
+        </div>
 
-          <!-- Customer Actions Menu -->
-          <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <!-- WhatsApp reminder button -->
-            @if (summary()?.status === 'due' && cust.phone) {
-              <a
-                [href]="ledger.getWhatsAppShareUrl(cust, summary()?.netBalance || 0)"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="px-3 py-1.5 rounded-full bg-[#e8f8ed] hover:bg-[#d4f2dc] text-[#1b873f] text-xs font-bold flex items-center gap-1.5 border border-[#34c759]/30 transition-all shadow-2xs active:scale-95"
-                [title]="i18n.t().sendWaReminderBtn"
-                id="detail-wa-reminder-btn"
+        <!-- Action Icons Row (Outside Name Card, Icons Only) -->
+        <div class="flex items-center justify-end gap-2.5 px-1 relative">
+          
+          <!-- 1. Dedicated Call Icon Button -->
+          @if (cust.phone) {
+            <a
+              [href]="'tel:' + cust.phone"
+              class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 flex items-center justify-center transition-all shadow-2xs active:scale-95 cursor-pointer"
+              [title]="i18n.currentLanguage() === 'hi' ? 'कॉल करें' : 'Call Customer'"
+              id="detail-call-btn"
+            >
+              <mat-icon class="text-lg! w-5! h-5! text-emerald-600">call</mat-icon>
+            </a>
+          }
+
+          <!-- 2. WhatsApp Reminder Icon Button -->
+          @if (cust.phone) {
+            <a
+              [href]="ledger.getWhatsAppShareUrl(cust, summary()?.netBalance || 0)"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#eafaf1] hover:bg-[#dcfce7] text-[#15803d] border border-[#86efac]/70 flex items-center justify-center transition-all shadow-2xs active:scale-95 cursor-pointer"
+              [title]="i18n.t().sendWaReminderBtn"
+              id="detail-wa-reminder-btn"
+            >
+              <mat-icon class="text-lg! w-5! h-5! text-[#10b981]">chat</mat-icon>
+            </a>
+          }
+
+          <!-- 3. PDF Statement Report Icon Button -->
+          <button
+            type="button"
+            (click)="onMenuStatement()"
+            class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200/80 flex items-center justify-center transition-all shadow-2xs active:scale-95 cursor-pointer"
+            [title]="i18n.t().pdfReport"
+            id="detail-statement-btn"
+          >
+            <mat-icon class="text-lg! w-5! h-5! text-sky-600">receipt_long</mat-icon>
+          </button>
+
+          <!-- 4. Vertical 3-Dot More Menu Icon Button -->
+          <div class="relative shrink-0">
+            <button
+              type="button"
+              (click)="isMenuOpen.set(!isMenuOpen())"
+              class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center cursor-pointer transition-all active:scale-95 border border-slate-200/80 shadow-2xs"
+              [class.bg-slate-200]="isMenuOpen()"
+              title="More options"
+              id="detail-more-menu-btn"
+            >
+              <mat-icon class="text-xl! w-5.5! h-5.5!">more_vert</mat-icon>
+            </button>
+
+            <!-- Dropdown Menu Popup -->
+            @if (isMenuOpen()) {
+              <!-- Backdrop to dismiss -->
+              <button
+                type="button"
+                aria-label="Close menu"
+                (click)="isMenuOpen.set(false)"
+                class="fixed inset-0 z-40 bg-transparent w-full h-full border-0 p-0 m-0 cursor-default"
+              ></button>
+
+              <div
+                class="absolute right-0 top-12 z-50 w-52 bg-white rounded-2xl shadow-xl border border-slate-200/80 py-1.5 animate-in fade-in zoom-in-95 duration-150 origin-top-right overflow-hidden"
+                id="detail-dropdown-menu"
               >
-                <mat-icon class="text-xs! w-3.5! h-3.5! text-[#34c759]">chat</mat-icon>
-                <span class="hidden sm:inline">{{ i18n.t().sendReminder }}</span>
-              </a>
+                <!-- Option 1: Edit Customer Details -->
+                <button
+                  type="button"
+                  (click)="onMenuEdit()"
+                  class="w-full px-4 py-2.5 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer transition-colors"
+                  id="menu-opt-edit"
+                >
+                  <mat-icon class="text-base! w-4.5! h-4.5! text-slate-500">edit</mat-icon>
+                  <span>{{ i18n.currentLanguage() === 'hi' ? 'ग्राहक जानकारी बदलें' : 'Edit Customer Info' }}</span>
+                </button>
+
+                <div class="my-1 border-t border-slate-100"></div>
+
+                <!-- Option 2: Delete Customer Account -->
+                <button
+                  type="button"
+                  (click)="onMenuDelete()"
+                  class="w-full px-4 py-2.5 text-left text-xs font-semibold text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 cursor-pointer transition-colors"
+                  id="menu-opt-delete"
+                >
+                  <mat-icon class="text-base! w-4.5! h-4.5! text-rose-500">delete_outline</mat-icon>
+                  <span>{{ i18n.currentLanguage() === 'hi' ? 'ग्राहक खाता हटाएं' : 'Delete Customer' }}</span>
+                </button>
+              </div>
             }
-
-            <!-- Statement / Print Button -->
-            <button
-              type="button"
-              (click)="openStatement.emit()"
-              class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/[0.04] hover:bg-black/[0.08] text-[#1c1c1e] flex items-center justify-center cursor-pointer transition-colors active:scale-95"
-              [title]="i18n.t().pdfReport"
-              id="detail-statement-btn"
-            >
-              <mat-icon class="text-xs! w-3.5! h-3.5!">receipt_long</mat-icon>
-            </button>
-
-            <!-- Edit customer button -->
-            <button
-              type="button"
-              (click)="editCustomer.emit()"
-              class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/[0.04] hover:bg-black/[0.08] text-[#1c1c1e] flex items-center justify-center cursor-pointer transition-colors active:scale-95"
-              title="Edit Customer"
-              id="detail-edit-customer-btn"
-            >
-              <mat-icon class="text-xs! w-3.5! h-3.5!">edit</mat-icon>
-            </button>
-
-            <!-- Delete customer button -->
-            <button
-              type="button"
-              (click)="confirmDeleteCustomer()"
-              class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-rose-50 hover:bg-rose-100 text-[#ff3b30] flex items-center justify-center cursor-pointer transition-colors active:scale-95"
-              title="Delete Customer"
-              id="detail-delete-customer-btn"
-            >
-              <mat-icon class="text-xs! w-3.5! h-3.5!">delete_outline</mat-icon>
-            </button>
           </div>
 
         </div>
 
-        <!-- Net Balance Hero Banner -->
+        <!-- Net Balance Hero Banner (Eye-safe Crimson & Soft Emerald palette) -->
         <div
-          class="rounded-xl p-5 sm:p-6 transition-all border shadow-2xs"
-          [class.bg-gradient-to-br]="true"
-          [class.from-rose-50]="summary()?.status === 'due'"
-          [class.to-orange-50]="summary()?.status === 'due'"
-          [class.border-rose-200]="summary()?.status === 'due'"
-          [class.from-emerald-50]="summary()?.status === 'advance'"
-          [class.to-teal-50]="summary()?.status === 'advance'"
-          [class.border-emerald-200]="summary()?.status === 'advance'"
+          class="rounded-2xl p-5 sm:p-6 transition-all border shadow-2xs"
+          [class.bg-linear-to-br]="true"
+          [class.from-rose-50/50]="summary()?.status === 'due'"
+          [class.via-white]="true"
+          [class.to-rose-50/30]="summary()?.status === 'due'"
+          [class.border-rose-200/70]="summary()?.status === 'due'"
+          [class.from-emerald-50/50]="summary()?.status === 'advance'"
+          [class.to-emerald-50/30]="summary()?.status === 'advance'"
+          [class.border-emerald-200/70]="summary()?.status === 'advance'"
           [class.from-slate-50]="summary()?.status === 'settled'"
           [class.to-slate-100]="summary()?.status === 'settled'"
           [class.border-slate-200]="summary()?.status === 'settled'"
@@ -117,45 +157,51 @@ import { I18nService } from '../services/i18n';
             
             <div>
               <span
-                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-xs text-[11px] font-bold uppercase tracking-wider mb-2.5 shadow-2xs border border-black/[0.04]"
-                [class.text-rose-800]="summary()?.status === 'due'"
-                [class.text-emerald-800]="summary()?.status === 'advance'"
-                [class.text-slate-800]="summary()?.status === 'settled'"
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider mb-2.5 shadow-2xs border"
+                [class.bg-rose-50]="summary()?.status === 'due'"
+                [class.text-rose-700]="summary()?.status === 'due'"
+                [class.border-rose-200/70]="summary()?.status === 'due'"
+                [class.bg-emerald-50]="summary()?.status === 'advance'"
+                [class.text-emerald-700]="summary()?.status === 'advance'"
+                [class.border-emerald-200/70]="summary()?.status === 'advance'"
+                [class.bg-slate-100]="summary()?.status === 'settled'"
+                [class.text-slate-700]="summary()?.status === 'settled'"
+                [class.border-slate-200]="summary()?.status === 'settled'"
               >
                 @if (summary()?.status === 'due') {
-                  <span class="w-2 h-2 rounded-full bg-[#ff3b30]"></span>
+                  <span class="w-2 h-2 rounded-full bg-rose-500"></span>
                   <span>{{ i18n.t().youWillGet }}</span>
                 } @else if (summary()?.status === 'advance') {
-                  <span class="w-2 h-2 rounded-full bg-[#34c759]"></span>
+                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                   <span>{{ i18n.t().youWillGive }}</span>
                 } @else {
-                  <span class="w-2 h-2 rounded-full bg-[#007aff]"></span>
+                  <span class="w-2 h-2 rounded-full bg-sky-500"></span>
                   <span>{{ i18n.t().filterSettled }}</span>
                 }
               </span>
 
               <div
                 class="text-3xl sm:text-4xl font-black tracking-tight"
-                [class.text-[#ff3b30]]="summary()?.status === 'due'"
-                [class.text-[#34c759]]="summary()?.status === 'advance'"
-                [class.text-[#1c1c1e]]="summary()?.status === 'settled'"
+                [class.text-rose-600]="summary()?.status === 'due'"
+                [class.text-emerald-600]="summary()?.status === 'advance'"
+                [class.text-slate-800]="summary()?.status === 'settled'"
               >
                 ₹{{ formatAmount(summary()?.netBalance || 0) }}
               </div>
             </div>
 
-            <!-- Breakdown totals -->
-            <div class="flex items-center gap-4 sm:gap-6 bg-white/90 backdrop-blur-xs rounded-xl px-4 py-2.5 border border-black/[0.06] shadow-2xs self-start sm:self-auto">
+            <!-- Breakdown totals in clean elevated card -->
+            <div class="flex items-center gap-4 sm:gap-6 bg-slate-50/90 rounded-xl px-4 py-2.5 border border-slate-200/80 shadow-2xs self-start sm:self-auto">
               <div>
-                <span class="text-[#8e8e93] block text-[10px] uppercase font-bold tracking-wider">{{ i18n.t().totalGaveAllTimeLabel }}</span>
-                <span class="font-black text-[#ff3b30] text-xs sm:text-sm">
+                <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">{{ i18n.t().totalGaveAllTimeLabel }}</span>
+                <span class="font-black text-rose-600 text-xs sm:text-sm">
                   ₹{{ (summary()?.totalGave || 0).toLocaleString('en-IN') }}
                 </span>
               </div>
-              <div class="w-px h-6 bg-black/[0.08]"></div>
+              <div class="w-px h-6 bg-slate-200"></div>
               <div>
-                <span class="text-[#8e8e93] block text-[10px] uppercase font-bold tracking-wider">{{ i18n.t().totalReceivedAllTimeLabel }}</span>
-                <span class="font-black text-[#34c759] text-xs sm:text-sm">
+                <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">{{ i18n.t().totalReceivedAllTimeLabel }}</span>
+                <span class="font-black text-emerald-600 text-xs sm:text-sm">
                   ₹{{ (summary()?.totalReceived || 0).toLocaleString('en-IN') }}
                 </span>
               </div>
@@ -185,7 +231,7 @@ import { I18nService } from '../services/i18n';
               [class.text-rose-600]="txFilter() !== 'gave'"
               id="tx-filter-gave"
             >
-              <span class="w-1.5 h-1.5 rounded-full bg-[#ff3b30]"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
               <span>{{ i18n.t().iGaveFilter }}</span>
             </button>
             <button
@@ -196,7 +242,7 @@ import { I18nService } from '../services/i18n';
               [class.text-emerald-600]="txFilter() !== 'received'"
               id="tx-filter-received"
             >
-              <span class="w-1.5 h-1.5 rounded-full bg-[#34c759]"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
               <span>{{ i18n.t().iGotFilter }}</span>
             </button>
           </div>
@@ -227,9 +273,12 @@ import { I18nService } from '../services/i18n';
                   <div
                     class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 font-bold text-sm"
                     [class.bg-rose-50]="tx.type === 'gave'"
-                    [class.text-[#ff3b30]]="tx.type === 'gave'"
+                    [class.text-rose-600]="tx.type === 'gave'"
+                    [class.border]="true"
+                    [class.border-rose-100]="tx.type === 'gave'"
                     [class.bg-emerald-50]="tx.type === 'received'"
-                    [class.text-[#34c759]]="tx.type === 'received'"
+                    [class.text-emerald-600]="tx.type === 'received'"
+                    [class.border-emerald-100]="tx.type === 'received'"
                   >
                     <mat-icon class="text-base! w-4! h-4!">
                       {{ tx.type === 'gave' ? 'arrow_upward' : 'arrow_downward' }}
@@ -260,8 +309,8 @@ import { I18nService } from '../services/i18n';
                   <div class="text-right">
                     <div
                       class="text-sm sm:text-base font-black tracking-tight"
-                      [class.text-[#ff3b30]]="tx.type === 'gave'"
-                      [class.text-[#34c759]]="tx.type === 'received'"
+                      [class.text-rose-600]="tx.type === 'gave'"
+                      [class.text-emerald-600]="tx.type === 'received'"
                     >
                       {{ tx.type === 'gave' ? '-' : '+' }} ₹{{ tx.amount.toLocaleString('en-IN') }}
                     </div>
@@ -284,7 +333,7 @@ import { I18nService } from '../services/i18n';
                     <button
                       type="button"
                       (click)="deleteTx(tx.id)"
-                      class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-rose-50 hover:bg-rose-100 text-[#ff3b30] flex items-center justify-center cursor-pointer transition-colors active:scale-95"
+                      class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center cursor-pointer transition-colors active:scale-95"
                       title="Delete transaction"
                       [id]="'delete-tx-' + tx.id"
                     >
@@ -301,13 +350,13 @@ import { I18nService } from '../services/i18n';
 
         <!-- Sticky Bottom Floating Action Dock -->
         <div class="fixed bottom-4 sm:bottom-6 left-4 right-4 sm:left-6 sm:right-6 z-30 pointer-events-none">
-          <div class="max-w-md mx-auto bg-white/85 backdrop-blur-xl rounded-2xl p-2 border border-white/60 shadow-[0_12px_40px_rgba(0,0,0,0.15)] pointer-events-auto grid grid-cols-2 gap-2.5">
+          <div class="max-w-md mx-auto bg-white/90 backdrop-blur-xl rounded-2xl p-2 border border-slate-200/80 shadow-[0_12px_40px_rgba(0,0,0,0.12)] pointer-events-auto grid grid-cols-2 gap-2.5">
             
             <!-- Red Button: MAINE DIYE ₹ -->
             <button
               type="button"
               (click)="openAddTx.emit('gave')"
-              class="flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl bg-[#ff3b30] hover:bg-[#e0342a] active:scale-95 text-white font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-[0_4px_14px_rgba(255,59,48,0.35)]"
+              class="flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 active:bg-rose-800 active:scale-95 text-white font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-md shadow-rose-600/25"
               id="btn-maine-diye"
             >
               <mat-icon class="text-sm! w-4! h-4!">remove_circle_outline</mat-icon>
@@ -318,7 +367,7 @@ import { I18nService } from '../services/i18n';
             <button
               type="button"
               (click)="openAddTx.emit('received')"
-              class="flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl bg-[#34c759] hover:bg-[#2eb14e] active:scale-95 text-white font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-[0_4px_14px_rgba(52,199,89,0.35)]"
+              class="flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 active:scale-95 text-white font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-md shadow-emerald-600/25"
               id="btn-maine-liye"
             >
               <mat-icon class="text-sm! w-4! h-4!">add_circle_outline</mat-icon>
@@ -343,6 +392,7 @@ export class CustomerDetail {
   readonly editTx = output<Transaction>();
 
   readonly txFilter = signal<'all' | 'gave' | 'received'>('all');
+  readonly isMenuOpen = signal<boolean>(false);
 
   readonly customer = computed(() => this.ledger.activeCustomer());
   readonly summary = computed(() => this.ledger.activeCustomerSummary());
@@ -353,6 +403,21 @@ export class CustomerDetail {
     if (filter === 'all') return list;
     return list.filter((t) => t.type === filter);
   });
+
+  onMenuStatement(): void {
+    this.isMenuOpen.set(false);
+    this.openStatement.emit();
+  }
+
+  onMenuEdit(): void {
+    this.isMenuOpen.set(false);
+    this.editCustomer.emit();
+  }
+
+  onMenuDelete(): void {
+    this.isMenuOpen.set(false);
+    this.confirmDeleteCustomer();
+  }
 
   formatAmount(amount: number): string {
     return Math.abs(amount).toLocaleString('en-IN');
